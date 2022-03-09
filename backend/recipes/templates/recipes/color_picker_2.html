@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Выбор цвета</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="coloris.min.css">
+    <style type="text/css">
+    @import url(https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap);
+
+    body {
+      height: 120vh;
+      margin: 30px;
+      color: #fff;
+      background-blend-mode: normal;
+      background-repeat: no-repeat;
+      font-family: 'Lato', sans-serif;
+    }
+
+    input {
+      width: 150px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      box-sizing: border-box;
+    }
+
+    .square .clr-field button,
+    .circle .clr-field button {
+      width: 22px;
+      height: 22px;
+      left: 5px;
+      right: auto;
+      border-radius: 5px;
+    }
+
+    .square .clr-field input,
+    .circle .clr-field input {
+      padding-left: 36px;
+    }
+
+    </style>
+  </head>
+  <body>
+      <div class="example circle">
+        <input type="text" name="color" class="coloris" value="#cc458f">
+      </div>
+    <script type="text/javascript" src="coloris.min.js"></script>
+    <script type="text/javascript">
+
+    Coloris({
+      el: '.coloris',
+      swatches: [
+        '#264653',
+        '#2a9d8f',
+        '#e9c46a',
+        '#f4a261',
+        '#e76f51',
+        '#d62828',
+        '#023e8a',
+        '#0077b6',
+        '#0096c7',
+        '#00b4d8',
+        '#48cae4'
+      ]
+    });
+    </script>
+  </body>
+</html>

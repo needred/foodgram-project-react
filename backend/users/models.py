@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import F, Q
+from django.utils.translation import gettext_lazy as _
 
 CHOICES = {
     'user': 'user',
@@ -50,7 +51,7 @@ class User(AbstractUser):
         verbose_name=_('Дата регистрации'),
         auto_now_add=True,
     )
-    USERNAME_FIELD = 'email'
+    # USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('email',)
 
     class Meta:

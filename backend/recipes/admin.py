@@ -1,3 +1,109 @@
+from django.conf import settings
 from django.contrib import admin
+from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredients,
+                     RecipeTags, ShoppingList, Tag)
+from .forms import TagForm
 
-# Register your models here.
+
+@admin.register(Tag)
+class TagsAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'color',
+        'slug',
+    )
+    form = TagForm
+    search_fields = ('name',)
+    ordering = ('color',)
+    empty_value_display = settings.EMPTY_VALUE
+
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'measurement_unit',
+        'get_recipes_count',
+    )
+    search_fields = ('name',)
+    ordering = ('measurement_unit',)
+    empty_value_display = settings.EMPTY_VALUE
+
+    @staticmethod
+    def get_recipes_count(obj):
+        return RecipeIngredients.objects.filter(ingredient=obj.id).count()
+
+    get_recipes_count.short_description = 'Количество ингредиента'
+
+
+class RecipeIngredientsInline(admin.TabularInline):
+    model = RecipeIngredients
+    min_num = 1
+    extra = 1
+
+
+class RecipeTagsInline(admin.TabularInline):
+    model = RecipeTags
+    min_num = 1
+    extra = 0
+
+
+@admin.register(RecipeIngredients)
+class RecipeIngredientsAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'recipe',
+        'ingredient',
+        'amount',
+    )
+    list_filter = ('id', 'recipe', 'ingredient')
+
+
+@admin.register(RecipeTags)
+class RecipeTagsAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'recipe',
+        'tag',
+    )
+    list_filter = ('id', 'recipe', 'tag')
+
+
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'author',
+        'in_favorite',
+    )
+    list_filter = ('name', 'author', 'tags',)
+    readonly_fields = ('in_favorite',)
+    inlines = (RecipeTagsInline, RecipeIngredientsInline)
+    empty_value_display = settings.EMPTY_VALUE
+
+    @staticmethod
+    def in_favorite(obj):
+        return obj.in_favorite.all().count()
+
+    in_favorite.short_description = 'Количество добавлений в избранное'
+
+
+@admin.register(FavoriteRecipe)
+class FavoriteRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'user',
+        'recipe',
+    )
+
+
+@admin.register(ShoppingList)
+class ShoppingListAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'user',
+        'recipe',
+    )
