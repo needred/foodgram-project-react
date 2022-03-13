@@ -1,10 +1,11 @@
-import django_filters
+# import django_filters
+from django_filters import rest_framework as filters
 
 from .models import Ingredient, Recipe
 
 
-class IngredientFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(
+class IngredientFilter(filters.FilterSet):
+    name = filters.CharFilter(
         field_name='name',
         lookup_expr='istartswith',
     )
@@ -14,16 +15,25 @@ class IngredientFilter(django_filters.FilterSet):
         fields = ('name',)
 
 
-class RecipeFilter(django_filters.FilterSet):
-    is_favorited = django_filters.BooleanFilter(
+class RecipeFilter(filters.FilterSet):
+    """
+    Фильтры для сортировки выдачи рецептов:
+    - по тегам
+    - по наличию в избранном
+    - по наличию в списке покупок.
+    """
+    is_favorited = filters.BooleanFilter(
         method='get_favorite',
         label='favorite',
     )
-    tags = django_filters.AllValuesMultipleFilter(
+    # tags = filters.ModelMultipleChoiceFilter(
+    tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
         label='tags',
+        # to_field_name='slug',
+        # queryset=Tag.objects.all(),
     )
-    is_in_shopping_cart = django_filters.BooleanFilter(
+    is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart',
         label='shopping_cart',
     )

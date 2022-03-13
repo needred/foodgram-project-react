@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Список покупок</title>
+</head>
+<body>
+    <h2>Список покупок</h2>
+    {% for key, value in ingredients.items %}
+        <li>{{ key }} {{ value.amount }} {{ value.measurement_unit }}</li>
+    {% endfor %}
+    <h4>Дата создания {% now 'd.m.Y G:i'%}</h4>
+</body>
+</html>

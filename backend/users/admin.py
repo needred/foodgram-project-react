@@ -14,6 +14,7 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
         'role',
     )
+    list_filter = ('email', 'username')
     search_fields = ('username',)
     empty_value_display = settings.EMPTY_VALUE
 

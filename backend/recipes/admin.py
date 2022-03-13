@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredients,
                      RecipeTags, ShoppingList, Tag)
 from .forms import TagForm
@@ -31,11 +32,9 @@ class IngredientAdmin(admin.ModelAdmin):
     ordering = ('measurement_unit',)
     empty_value_display = settings.EMPTY_VALUE
 
-    @staticmethod
-    def get_recipes_count(obj):
+    def get_recipes_count(self, obj):
         return RecipeIngredients.objects.filter(ingredient=obj.id).count()
-
-    get_recipes_count.short_description = 'Количество ингредиента'
+    get_recipes_count.short_description = _('Использований в рецептах')
 
 
 class RecipeIngredientsInline(admin.TabularInline):
@@ -84,11 +83,9 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeTagsInline, RecipeIngredientsInline)
     empty_value_display = settings.EMPTY_VALUE
 
-    @staticmethod
-    def in_favorite(obj):
+    def in_favorite(self, obj):
         return obj.in_favorite.all().count()
-
-    in_favorite.short_description = 'Количество добавлений в избранное'
+    in_favorite.short_description = _('Количество добавлений в избранное')
 
 
 @admin.register(FavoriteRecipe)
