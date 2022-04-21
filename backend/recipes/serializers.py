@@ -83,7 +83,7 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField()  # проверить
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -118,6 +118,9 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
 
 
 class AddIngredientRecipeSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для добавления Ингредиентов.
+    """
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = serializers.IntegerField()
 
@@ -127,6 +130,9 @@ class AddIngredientRecipeSerializer(serializers.ModelSerializer):
 
 
 class AddRecipeSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для добавления рецептов.
+    """
     ingredients = AddIngredientRecipeSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
                                               many=True)
@@ -194,7 +200,6 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         ingredients_data = validated_data.pop('ingredients')
         image = validated_data.pop('image')
         recipe = Recipe.objects.create(author=author, **validated_data)
-        # recipe = Recipe.objects.create(image=image, **validated_data)
         recipe.tags.set(tags_data)
         self.add_ingredients(ingredients_data, recipe)
         recipe.image = image
@@ -227,6 +232,9 @@ class AddRecipeSerializer(serializers.ModelSerializer):
 
 
 class ShowFavoriteRecipeShopListSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для краткого отображения сведений о рецепте.
+    """
     class Meta:
         model = Recipe
         fields = ('id', 'name',
@@ -234,6 +242,9 @@ class ShowFavoriteRecipeShopListSerializer(serializers.ModelSerializer):
 
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для списка избранного.
+    """
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         write_only=True,
@@ -262,7 +273,8 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         context = {'request': request}
         return ShowFavoriteRecipeShopListSerializer(
             instance.recipe,
-            context=context).data
+            context=context
+        ).data
 
 
 class ShoppingListSerializer(serializers.ModelSerializer):

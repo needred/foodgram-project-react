@@ -33,14 +33,11 @@ def follow_author(request, pk):
             content = {'errors': 'Вы уже подписаны на данного автора'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         follows = User.objects.all().filter(username=author)
-        # follows = User.objects.all().filter(user=user, author=author)
-        # print('###', follows)
         serializer = FollowSerializer(
             follows,
             context={'request': request},
             many=True,
         )
-        # print('###', serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     if request.method == 'DELETE':
@@ -69,7 +66,6 @@ class SubscriptionListView(viewsets.ReadOnlyModelViewSet):
         user = self.request.user
         new_queryset = User.objects.filter(following__user=user)
         return new_queryset
-        # return User.objects.filter(following__user=self.request.user)
 
 
 class CustomTokenDestroyView(TokenDestroyView):

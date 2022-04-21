@@ -25,12 +25,9 @@ class RecipeFilter(filters.FilterSet):
         method='get_favorite',
         label='favorite',
     )
-    # tags = filters.ModelMultipleChoiceFilter(
     tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
         label='tags',
-        # to_field_name='slug',
-        # queryset=Tag.objects.all(),
     )
     is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart',
@@ -48,9 +45,9 @@ class RecipeFilter(filters.FilterSet):
 
     def get_favorite(self, queryset, name, value):
         if value:
-            return queryset.filter(favorite_recipe__user=self.request.user)
+            return queryset.filter(in_favorite__user=self.request.user)
         return queryset.exclude(
-            favorite_recipe__user=self.request.user
+            in_favorite__user=self.request.user
         )
 
     def get_is_in_shopping_cart(self, queryset, name, value):

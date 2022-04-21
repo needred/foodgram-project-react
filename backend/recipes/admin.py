@@ -34,6 +34,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
     def get_recipes_count(self, obj):
         return RecipeIngredients.objects.filter(ingredient=obj.id).count()
+
     get_recipes_count.short_description = _('Использований в рецептах')
 
 
@@ -85,6 +86,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def in_favorite(self, obj):
         return obj.in_favorite.all().count()
+
     in_favorite.short_description = _('Количество добавлений в избранное')
 
 
