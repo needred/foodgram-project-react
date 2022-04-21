@@ -13,6 +13,7 @@ CHOICES = {
 class User(AbstractUser):
     email = models.EmailField(
         verbose_name=_('Адрес email'),
+        max_length=254,
         unique=True,
         blank=False,
         error_messages={
@@ -51,8 +52,13 @@ class User(AbstractUser):
         verbose_name=_('Дата регистрации'),
         auto_now_add=True,
     )
+    password = models.CharField(
+        verbose_name=_('Пароль'),
+        max_length=150,
+        help_text=_('Введите пароль'),
+    )
     # USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('email',)
+    REQUIRED_FIELDS = ('email', 'first_name', 'last_name',)
 
     class Meta:
         swappable = 'AUTH_USER_MODEL'

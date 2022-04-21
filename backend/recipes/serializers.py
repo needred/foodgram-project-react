@@ -155,7 +155,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
                 raise ValidationError(
                     'Количество ингредиентов должно быть больше нуля!'
                 )
-        ids = [item['id'] for item in data]
+        ids = [item['id'] for item in ingredients]
         if len(ids) != len(set(ids)):
             raise ValidationError(
                 'Ингредиенты в рецепте должны быть уникальными!'
@@ -168,12 +168,12 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         return data
 
     @staticmethod
-    def validate_cooking_time(data):
-        if data <= 0:
+    def validate_cooking_time(value):
+        if value <= 0:
             raise ValidationError(
                 'Время приготовления должно быть больше нуля!'
             )
-        return data
+        return value
 
     @staticmethod
     def add_ingredients(ingredients, recipe):
@@ -189,13 +189,16 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             )
 
     def create(self, validated_data):
-        # author = self.context.get('request').user
+        author = self.context.get('request').user
         tags_data = validated_data.pop('tags')
         ingredients_data = validated_data.pop('ingredients')
         image = validated_data.pop('image')
-        recipe = Recipe.objects.create(image=image, **validated_data)
-        self.add_ingredients(ingredients_data, recipe)
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        # recipe = Recipe.objects.create(image=image, **validated_data)
         recipe.tags.set(tags_data)
+        self.add_ingredients(ingredients_data, recipe)
+        recipe.image = image
+        recipe.save()
         return recipe
 
     def update(self, recipe, validated_data):

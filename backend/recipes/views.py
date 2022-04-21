@@ -25,28 +25,7 @@ from .serializers import (
 )
 
 
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet для обработки тэгов.
-    """
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
-    pagination_class = None
-    permission_classes = (IsAdminOrReadOnly,)
-
-
-class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet для обработки ингредиентов.
-    """
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
-    pagination_class = None
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = IngredientFilter
-
-
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipesViewSet(viewsets.ModelViewSet):
     """
     ViewSet для обработки рецептов.
     """
@@ -65,7 +44,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return self.serializer_classes.get(self.action,
                                            self.default_serializer_class)
 
-    @action(detail=True)
+    @action(detail=True, methods=['POST', ],)
     def favorite(self, request, pk):
         data = {'user': request.user.id,
                 'recipe': pk}
@@ -89,7 +68,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True)
+    @action(detail=True, methods=['POST', ],)
     def shopping_cart(self, request, pk):
         data = {'user': request.user.id,
                 'recipe': pk}
@@ -113,8 +92,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def download_shopping_cart(self, request):
-        shopping_list = request.user.shopping_list.all()
-        ingredients = get_list_of_ingredients(shopping_list)
+        shopping_list = request.user.shopping_user.all()
+        ingredients = get_list_ingredients(shopping_list)
         html_template = render_to_string('recipes/pdf_template.html',
                                          {'ingredients': ingredients})
         html = HTML(string=html_template)
@@ -125,13 +104,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return response
 
 
-def get_list_of_ingredients(recipe_list):
+def get_list_ingredients(recipe_list):
     ingredients_dict = {}
     for recipe in recipe_list:
         ingredients = RecipeIngredients.objects.filter(recipe=recipe.recipe)
         for ingredient in ingredients:
-            amount = ingredient.amount
             name = ingredient.ingredient.name
+            amount = ingredient.amount
             measurement_unit = ingredient.ingredient.measurement_unit
             if name not in ingredients_dict:
                 ingredients_dict[name] = {
@@ -141,3 +120,24 @@ def get_list_of_ingredients(recipe_list):
             else:
                 ingredients_dict[name]['amount'] += amount
     return ingredients_dict
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet для обработки тэгов.
+    """
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    pagination_class = None
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet для обработки ингредиентов.
+    """
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    pagination_class = None
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter

@@ -14,23 +14,16 @@ from .models import Follow, User
 from .serializers import FollowSerializer
 
 
-class CustomTokenDestroyView(TokenDestroyView):
-
-    def post(self, request):
-        utils.logout_user(request)
-        return Response(status=status.HTTP_201_CREATED)
-
-
-@api_view(['GET', 'DELETE'])
+@api_view(['POST', 'DELETE'])
 @permission_classes([permissions.IsAuthenticated, ])
 def follow_author(request, pk):
     """
-    Подписки пользователей.
+    Подписка на автора.
     """
     user = get_object_or_404(User, username=request.user.username)
     author = get_object_or_404(User, pk=pk)
 
-    if request.method == 'GET':
+    if request.method == 'POST':
         if user.id == author.id:
             content = {'errors': 'Нельзя подписаться на себя'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -40,11 +33,14 @@ def follow_author(request, pk):
             content = {'errors': 'Вы уже подписаны на данного автора'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         follows = User.objects.all().filter(username=author)
+        # follows = User.objects.all().filter(user=user, author=author)
+        # print('###', follows)
         serializer = FollowSerializer(
             follows,
             context={'request': request},
-            many=True
+            many=True,
         )
+        # print('###', serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     if request.method == 'DELETE':
@@ -54,7 +50,8 @@ def follow_author(request, pk):
             content = {'errors': 'Вы не подписаны на данного автора'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         subscription.delete()
-        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+        return HttpResponse('Вы успешно отписаны от этого автора',
+                            status=status.HTTP_204_NO_CONTENT)
 
 
 class SubscriptionListView(viewsets.ReadOnlyModelViewSet):
@@ -69,4 +66,14 @@ class SubscriptionListView(viewsets.ReadOnlyModelViewSet):
     search_fields = ('^following__user',)
 
     def get_queryset(self):
-        return User.objects.filter(following__user=self.request.user)
+        user = self.request.user
+        new_queryset = User.objects.filter(following__user=user)
+        return new_queryset
+        # return User.objects.filter(following__user=self.request.user)
+
+
+class CustomTokenDestroyView(TokenDestroyView):
+
+    def post(self, request):
+        utils.logout_user(request)
+        return Response(status=status.HTTP_201_CREATED)

@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
 from recipes.models import Recipe
@@ -67,8 +66,6 @@ class FollowRecipeSerializer(serializers.ModelSerializer):
     """
     Сериализатор для короткой модели рецепта в подписках.
     """
-    image = Base64ImageField()
-
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -76,7 +73,7 @@ class FollowRecipeSerializer(serializers.ModelSerializer):
 
 class FollowSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для вывода авторов, на которых подписан пользователь.
+    Сериализатор для подписок.
     """
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField(read_only=True)
