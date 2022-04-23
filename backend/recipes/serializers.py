@@ -68,17 +68,18 @@ class ShowIngredientsInRecipeSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для рецептов.
+    Cериализатор для модели Recipe с укороченным набором полей.
     """
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
-        fields = '__all__'
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class ShowRecipeSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для вывода данных по рецепту.
+    Сериализатор для работы с рецептами.
     """
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
