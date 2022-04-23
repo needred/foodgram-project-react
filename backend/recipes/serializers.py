@@ -5,12 +5,11 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from users.serializers import CustomUserSerializer  # isort:skip
-
 from .models import (
     FavoriteRecipe,
     Ingredient,
     Recipe,
-    RecipeIngredients,
+    RecipeIngredient,
     ShoppingList,
     Tag
 )
@@ -22,6 +21,7 @@ class TagSerializer(serializers.ModelSerializer):
     """
     Сериализатор для вывода тэгов.
     """
+
     class Meta:
         model = Tag
         fields = (
@@ -36,6 +36,7 @@ class IngredientSerializer(serializers.ModelSerializer):
     """
     Сериализатор для вывода ингредиентов.
     """
+
     class Meta:
         model = Ingredient
         fields = (
@@ -56,7 +57,7 @@ class ShowIngredientsInRecipeSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = RecipeIngredients
+        model = RecipeIngredient
         fields = (
             'id',
             'name',
@@ -69,6 +70,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     """
     Сериализатор для рецептов.
     """
+
     class Meta:
         model = Recipe
         fields = '__all__'
@@ -93,7 +95,7 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_ingredients(obj):
-        ingredients = RecipeIngredients.objects.filter(recipe=obj)
+        ingredients = RecipeIngredient.objects.filter(recipe=obj)
         return ShowIngredientsInRecipeSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
@@ -125,7 +127,7 @@ class AddIngredientRecipeSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField()
 
     class Meta:
-        model = RecipeIngredients
+        model = RecipeIngredient
         fields = ('id', 'amount')
 
 
@@ -147,11 +149,10 @@ class AddRecipeSerializer(serializers.ModelSerializer):
                   'image', 'name', 'text',
                   'cooking_time', 'author')
 
-    def validate_ingredients(self, data):
+    def validate_ingredients(self, ingredients):
         """
         Проверка ингредиентов.
         """
-        ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise ValidationError(
                 'Необходимо выбрать ингредиенты!'
@@ -166,12 +167,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 'Ингредиенты в рецепте должны быть уникальными!'
             )
-        for _id in ids:
-            if not Ingredient.objects.filter(id=_id).exists():
-                raise ValidationError(
-                    f'Ингредиент с id = {_id} не найден!'
-                )
-        return data
+        return ingredients
 
     @staticmethod
     def validate_cooking_time(value):
@@ -183,14 +179,14 @@ class AddRecipeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def add_ingredients(ingredients, recipe):
-        for ingr in ingredients:
-            ingr_id = ingr['id']
-            amount = ingr['amount']
-            if RecipeIngredients.objects.filter(
-                    recipe=recipe, ingredient=ingr_id).exists():
+        for ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            amount = ingredient['amount']
+            if RecipeIngredient.objects.filter(
+                    recipe=recipe, ingredient=ingredient_id).exists():
                 amount += F('amount')
-            RecipeIngredients.objects.update_or_create(
-                recipe=recipe, ingredient=ingr_id,
+            RecipeIngredient.objects.update_or_create(
+                recipe=recipe, ingredient=ingredient_id,
                 defaults={'amount': amount}
             )
 
@@ -199,30 +195,19 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         tags_data = validated_data.pop('tags')
         ingredients_data = validated_data.pop('ingredients')
         image = validated_data.pop('image')
-        recipe = Recipe.objects.create(author=author, **validated_data)
-        recipe.tags.set(tags_data)
+        recipe = Recipe.objects.create(image=image, author=author,
+                                       **validated_data)
         self.add_ingredients(ingredients_data, recipe)
-        recipe.image = image
-        recipe.save()
+        recipe.tags.set(tags_data)
         return recipe
 
     def update(self, recipe, validated_data):
-        recipe.name = validated_data.get('name', recipe.name)
-        recipe.text = validated_data.get('text', recipe.text)
-        recipe.cooking_time = validated_data.get(
-            'cooking_time', recipe.cooking_time)
-        recipe.image = validated_data.get(
-            'image', recipe.image)
-        if 'ingredients' in self.initial_data:
-            ingredients = validated_data.pop('ingredients')
-            recipe.ingredients.clear()
-            self.add_ingredients(ingredients, recipe)
-        if 'tags' in self.initial_data:
-            tags = validated_data.pop('tags')
-            recipe.tags.clear()
-            recipe.tags.set(tags)
-        recipe.save()
-        return recipe
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        RecipeIngredient.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(ingredients, recipe)
+        recipe.tags.set(tags)
+        return super().update(recipe, validated_data)
 
     def to_representation(self, recipe):
         data = ShowRecipeSerializer(
@@ -235,6 +220,7 @@ class ShowFavoriteRecipeShopListSerializer(serializers.ModelSerializer):
     """
     Сериализатор для краткого отображения сведений о рецепте.
     """
+
     class Meta:
         model = Recipe
         fields = ('id', 'name',

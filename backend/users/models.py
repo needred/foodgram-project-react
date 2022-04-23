@@ -3,14 +3,16 @@ from django.db import models
 from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
 
-CHOICES = {
-    'user': 'user',
-    'moderator': 'moderator',
-    'admin': 'admin',
-}
-
 
 class User(AbstractUser):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+    ROLES = {
+        (USER, 'user'),
+        (MODERATOR, 'moderator'),
+        (ADMIN, 'admin'),
+    }
     email = models.EmailField(
         verbose_name=_('Адрес email'),
         max_length=254,
@@ -45,8 +47,8 @@ class User(AbstractUser):
     role = models.CharField(
         verbose_name=_('статус'),
         max_length=20,
-        choices=CHOICES.items(),
-        default=CHOICES['user'],
+        choices=ROLES,
+        default=USER,
     )
     date_joined = models.DateTimeField(
         verbose_name=_('Дата регистрации'),
@@ -58,7 +60,6 @@ class User(AbstractUser):
         help_text=_('Введите пароль'),
     )
     # USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('email', 'first_name', 'last_name',)
 
     class Meta:
         swappable = 'AUTH_USER_MODEL'
@@ -70,11 +71,11 @@ class User(AbstractUser):
 
     @property
     def is_moderator(self):
-        return self.is_staff or self.role == CHOICES['moderator']
+        return self.is_staff or self.role == self.MODERATOR
 
     @property
     def is_admin(self):
-        return self.is_superuser or self.role == CHOICES['admin']
+        return self.is_superuser or self.role == self.ADMIN
 
 
 class Follow(models.Model):

@@ -9,7 +9,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from foodgram.pagination import LimitPageNumberPaginator
-
 from .models import Follow, User
 from .serializers import FollowSerializer
 

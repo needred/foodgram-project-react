@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredients,
-                     RecipeTags, ShoppingList, Tag)
+
 from .forms import TagForm
+from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingList, Tag)
 
 
 @admin.register(Tag)
@@ -33,24 +34,24 @@ class IngredientAdmin(admin.ModelAdmin):
     empty_value_display = settings.EMPTY_VALUE
 
     def get_recipes_count(self, obj):
-        return RecipeIngredients.objects.filter(ingredient=obj.id).count()
+        return RecipeIngredient.objects.filter(ingredient=obj.id).count()
 
     get_recipes_count.short_description = _('Использований в рецептах')
 
 
 class RecipeIngredientsInline(admin.TabularInline):
-    model = RecipeIngredients
+    model = RecipeIngredient
     min_num = 1
     extra = 1
 
 
-class RecipeTagsInline(admin.TabularInline):
-    model = RecipeTags
-    min_num = 1
-    extra = 0
+# class RecipeTagsInline(admin.TabularInline):
+#     model = RecipeTag
+#     min_num = 1
+#     extra = 0
 
 
-@admin.register(RecipeIngredients)
+@admin.register(RecipeIngredient)
 class RecipeIngredientsAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -61,14 +62,14 @@ class RecipeIngredientsAdmin(admin.ModelAdmin):
     list_filter = ('id', 'recipe', 'ingredient')
 
 
-@admin.register(RecipeTags)
-class RecipeTagsAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'recipe',
-        'tag',
-    )
-    list_filter = ('id', 'recipe', 'tag')
+# @admin.register(RecipeTag)
+# class RecipeTagsAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'id',
+#         'recipe',
+#         'tag',
+#     )
+#     list_filter = ('id', 'recipe', 'tag')
 
 
 @admin.register(Recipe)
@@ -81,7 +82,7 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     list_filter = ('name', 'author', 'tags',)
     readonly_fields = ('in_favorite',)
-    inlines = (RecipeTagsInline, RecipeIngredientsInline)
+    inlines = (RecipeIngredientsInline,)
     empty_value_display = settings.EMPTY_VALUE
 
     def in_favorite(self, obj):
