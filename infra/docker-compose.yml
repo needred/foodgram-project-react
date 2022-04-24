@@ -21,7 +21,7 @@ services:
       - ./.env
 
   frontend:
-    image: needred/foodgram-frontend:v1.0
+    image: needred/foodgram-frontend:latest
     # build:
       # context: ../frontend
       # dockerfile: Dockerfile
