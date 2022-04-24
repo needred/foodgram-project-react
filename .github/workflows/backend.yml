@@ -71,7 +71,7 @@ jobs:
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
             # echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             # echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
-            sudo docker-compose up -d --build
+            sudo docker-compose up -d
             # sudo docker-compose exec -T backend python manage.py migrate
             ## echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='${{ secrets.ADMIN_USERNAME }}').exists() or User.objects.create_superuser('${{ secrets.ADMIN_USERNAME }}', '${{ secrets.ADMIN_USERNAME }}@admin.zz', '${{ secrets.ADMIN_PASSWORD }}')" | sudo docker-compose exec -T backend python manage.py shell
             # echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@admin.zz', '123456')" | sudo docker-compose exec -T backend python manage.py shell
