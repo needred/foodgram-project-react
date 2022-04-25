@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         with open(
-                './data/recipes_tag.csv', 'r',
+                'recipes/data/recipes_tag.csv', 'r',
                 encoding='UTF-8'
         ) as tags:
             for row in reader(tags):
