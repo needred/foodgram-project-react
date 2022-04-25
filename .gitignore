@@ -135,6 +135,6 @@ dmypy.json
 backend/media/
 backend/static/
 backend/staticfiles/
-data/
+# data/
 frontend/
 media/
