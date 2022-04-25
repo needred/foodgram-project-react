@@ -11,7 +11,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='9lcphoq3k=1+hygjlwetyxtuuuo!R7D!!6
 
 DEBUG = False
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='*').split(',')
+# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='*').split(',')
+ALLOWED_HOSTS = ['51.250.103.156', 'foodgram.zapto.org', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
