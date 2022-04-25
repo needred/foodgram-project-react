@@ -16,25 +16,10 @@ Foodgram - Продуктовый помощник. Сервис позволя�
 [![GitHub%20Actions](https://img.shields.io/badge/-GitHub%20Actions-464646?style=flat&logo=GitHub%20actions&logoColor=56C0C0&color=008080)](https://github.com/features/actions)
 [![Yandex.Cloud](https://img.shields.io/badge/-Yandex.Cloud-464646?style=flat&logo=Yandex.Cloud&logoColor=56C0C0&color=008080)](https://cloud.yandex.ru/)
 
-## Workflow
+### Workflow
 * build_and_push_to_docker_hub - Сборка и доставка докер-образов на Docker Hub
 * deploy - Автоматический деплой проекта на боевой сервер. Выполняется копирование файлов из репозитория на сервер:
 * send_message - Отправка уведомления в Telegram
-
-### Подготовка для запуска workflow
-Создайте и активируйте виртуальное окружение, обновите pip:
-```
-python3 -m venv venv
-. venv/bin/activate
-python3 -m pip install --upgrade pip
-```
-Отредактируйте файл `nginx/default.conf` и в строке `server_name` впишите IP виртуальной машины (сервера).  
-Скопируйте подготовленные файлы `docker-compose.yaml` и `nginx/default.conf` из вашего проекта на сервер:
-```
-scp docker-compose.yaml <username>@<host>/home/<username>/docker-compose.yaml
-sudo mkdir nginx
-scp default.conf <username>@<host>/home/<username>/nginx/default.conf
-```
 В репозитории на Гитхабе добавьте данные в `Settings - Secrets - Actions secrets`:
 - ```DOCKER_USERNAME``` - имя пользователя в DockerHub
 - ```DOCKER_PASSWORD``` - пароль пользователя в DockerHub
@@ -60,7 +45,6 @@ git push
 ```
 запускается набор блоков команд jobs (см. файл [backend.yml](https://github.com/needred/foodgram-project-react/blob/master/.github/workflows/backend.yml), т.к. команда `git push` является триггером workflow проекта.
 
-
 ## Как развернуть проект на сервере:
 Установите соединение с сервером:
 ```
@@ -72,15 +56,29 @@ sudo apt update
 ```
 и обновите установленные в системе пакеты и установите обновления безопасности:
 ```
-sudo apt upgrade -y 
+sudo apt upgrade -y
 ```
-Проверьте статус nginx:
+Клонируйте репозиторий и перейдите в него в командной строке:
 ```
-sudo service nginx status
+git clone https://github.com/needred/foodgram-project-react.git
+cd backend
 ```
-Если nginx запущен, остановите его:
+Создайте и активируйте виртуальное окружение, обновите pip:
 ```
-sudo systemctl stop nginx
+python3 -m venv venv
+. venv/bin/activate
+python3 -m pip install --upgrade pip
+```
+Создайте папку `nginx`:
+```
+mkdir nginx
+```
+Отредактируйте файл `nginx/default.conf` и в строке `server_name` впишите IP виртуальной машины (сервера).  
+Скопируйте подготовленные файлы `docker-compose.yaml` и `nginx/default.conf` из вашего проекта на сервер:
+```
+scp docker-compose.yaml <username>@<host>/home/<username>/docker-compose.yaml
+sudo mkdir nginx
+scp default.conf <username>@<host>/home/<username>/nginx/default.conf
 ```
 Установите Docker и Docker-compose:
 ```
@@ -96,15 +94,29 @@ sudo chmod +x /usr/local/bin/docker-compose
 ```
 sudo  docker-compose --version
 ```
-Создайте папку `nginx`:
+На сервере создайте файл .env 
 ```
-mkdir nginx
+touch .env
 ```
+и заполните переменные окружения
+```
+nano .env
+```
+или создайте этот файл локально и скопируйте файл по аналогии с предыдущим шагом:
+```
+SECRET_KEY=<SECRET_KEY>
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DB_HOST=db
+DB_PORT=5432
+```
+
 ### После успешного деплоя:
-Клонируйте репозиторий и перейдите в него в командной строке:
+На сервере соберите docker-compose:
 ```
-git clone https://github.com/needred/foodgram-project-react.git
-cd backend
+sudo docker-compose up -d --build
 ```
 Соберите статические файлы (статику):
 ```
