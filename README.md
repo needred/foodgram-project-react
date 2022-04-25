@@ -192,10 +192,10 @@ docker-compose exec backend python manage.py load_tags
 
 ## Ссылки
 ### Документация API Foodgram:
-http://51.250.28.207/api/docs/redoc.html
+http://51.250.18.51/api/docs/redoc.html
 ### Развёрнутый проект:
-http://51.250.28.207  
-http://51.250.28.207/admin/
+http://51.250.18.51  
+http://51.250.18.51/admin/
 
 ## Об авторе
 [needred](https://github.com/needred/)
