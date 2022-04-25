@@ -34,15 +34,26 @@ services:
     image: nginx:1.21.3-alpine
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - static_value:/var/html/static
       - media_value:/var/html/media
       - ./nginx.conf:/etc/nginx/conf.d
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      - ./certbot/conf:/etc/letsencrypt/
+      - ./certbot/www:/var/html/certbot/
     restart: always
     depends_on:
       - frontend
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/html/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
   static_value:
