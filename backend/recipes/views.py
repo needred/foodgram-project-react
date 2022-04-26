@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -51,13 +51,17 @@ class RecipesViewSet(viewsets.ModelViewSet):
         serializer = RecipeSerializer(instance=recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['POST', 'DELETE'], )
+    @action(detail=True,
+            permission_classes=[permissions.IsAuthenticated],
+            methods=['POST', 'DELETE'], )
     def favorite(self, request, pk=None):
         return self._favorite_shopping_post_delete(
             request.user.favorite
         )
 
-    @action(detail=True, methods=['POST', 'DELETE'], )
+    @action(detail=True,
+            permission_classes=[permissions.IsAuthenticated],
+            methods=['POST', 'DELETE'], )
     def shopping_cart(self, request, pk=None):
         return self._favorite_shopping_post_delete(
             request.user.shopping_user
